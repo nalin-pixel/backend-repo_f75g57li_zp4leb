@@ -11,10 +11,10 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, List
 
-# Example schemas (replace with your own):
+# Example schemas (kept for reference):
 
 class User(BaseModel):
     """
@@ -38,11 +38,32 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Real estate app schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Listing(BaseModel):
+    """
+    Real estate property listing
+    Collection: "listing"
+    """
+    title: str = Field(..., description="Short headline for the property")
+    address: str = Field(..., description="Property address")
+    city: str = Field(..., description="City")
+    state: str = Field(..., description="State or region")
+    price: int = Field(..., ge=0, description="Price in whole currency units")
+    beds: int = Field(..., ge=0, description="Number of bedrooms")
+    baths: float = Field(..., ge=0, description="Number of bathrooms")
+    sqft: int = Field(..., ge=0, description="Square footage")
+    image: Optional[str] = Field(None, description="Hero image URL")
+    gallery: Optional[List[str]] = Field(default=None, description="Additional image URLs")
+    featured: bool = Field(default=False, description="Show as featured on homepage")
+    property_type: str = Field(default="House", description="Type of property")
+
+class Inquiry(BaseModel):
+    """
+    Contact/inquiry for a listing
+    Collection: "inquiry"
+    """
+    name: str = Field(..., description="Sender name")
+    email: EmailStr = Field(..., description="Sender email")
+    message: str = Field(..., min_length=5, max_length=2000, description="Message body")
+    property_id: Optional[str] = Field(None, description="Related listing id")
